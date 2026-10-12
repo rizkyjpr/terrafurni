@@ -1,0 +1,13 @@
+/* Shared HTML renderer for static pages and optional browser interactions. */
+window.TERRA_VIEW = (() => {
+  const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money=value=>new Intl.NumberFormat('en-US',{style:'currency',currency:'IDR',currencyDisplay:'code',maximumFractionDigits:0}).format(value);
+  const finish=(data,p,id)=>data.finishes.find(f=>f.id===(id||p.defaultFinish||'natural'))||data.finishes[1];
+  const wa=(data,p,id)=>`https://wa.me/${data.whatsapp}?text=${encodeURIComponent(`Hello Terra Furniture, I am interested in the ${p.name}.\nPreferred finish: ${finish(data,p,id).name}.\nApproximate dimensions (W × D × H): ${p.size}.\nPlease confirm the final price, availability and delivery cost.${p.demo?' I saw the sample details in the catalogue preview.':''}`)}`;
+  const swatches=(data,p,id,context)=>`<div class="swatches" role="group" aria-label="Finish options for ${esc(p.name)}">${data.finishes.map(f=>`<button class="swatch" style="--swatch:${f.color}" title="${esc(f.name)}" aria-label="${esc(f.name)}" aria-pressed="${f.id===finish(data,p,id).id}" data-product="${p.id}" data-finish="${f.id}" data-context="${context}"></button>`).join('')}</div>`;
+  const palette=data=>data.finishes.map(f=>`<div class="finish-chip"><i style="--swatch:${f.color}" aria-hidden="true"></i><span>${esc(f.name)}</span></div>`).join('');
+  const card=(data,p,root,index=0)=>`<article class="product-card" id="${esc(p.id)}" data-card="${p.id}">
+  <button class="product-image-button" data-open="${p.id}" aria-label="View ${esc(p.name)} details"><img src="${root}${esc(p.image)}" alt="${esc(p.name)}${p.sampleImage?' — sample Japandi furniture illustration':' — Terra Furniture product photo'}" loading="${index<3?'eager':'lazy'}" decoding="async" width="1024" height="1024">${p.sampleImage?'<span class="image-label">PRODUCT ILLUSTRATION</span>':''}<span class="view-label" aria-hidden="true">↗</span></button>
+  <div class="product-info"><p class="product-category">${esc(data.categories.find(c=>c[0]===p.category)[1])}</p><div class="product-name-row"><h3><button data-open="${p.id}">${esc(p.name)}</button></h3><span class="product-price">${money(p.price)}${p.demo?' *':''}</span></div><p class="product-meta">Approx. ${esc(p.size)}<br>${esc(p.material)}</p><div class="card-bottom">${swatches(data,p,null,'card')}<a class="card-whatsapp" data-wa="${p.id}" href="${esc(wa(data,p))}" target="_blank" rel="noopener noreferrer">Enquire via WhatsApp <span aria-hidden="true">↗</span></a></div><p class="selection-label" data-selection="${p.id}">Preferred finish: ${esc(finish(data,p).name)}</p></div></article>`;
+  return {esc,money,finish,wa,swatches,palette,card};
+})();

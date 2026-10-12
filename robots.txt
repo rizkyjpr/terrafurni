@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://terra-furniture-japandi.glossy-puppy-9639.chatgpt.site/sitemap.xml
